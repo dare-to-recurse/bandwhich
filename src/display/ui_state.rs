@@ -16,14 +16,14 @@ pub trait Bandwidth {
     fn divide_by(&mut self, amount: u128);
 }
 
-#[derive(Clone, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct NetworkData {
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
     pub connection_count: u128,
 }
 
-#[derive(Clone, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct ConnectionData {
     pub total_bytes_downloaded: u128,
     pub total_bytes_uploaded: u128,
@@ -66,6 +66,7 @@ impl Bandwidth for ConnectionData {
     }
 }
 
+#[derive(Debug)]
 pub struct UtilizationData {
     connections_to_procs: HashMap<LocalSocket, String>,
     network_utilization: Utilization,
@@ -149,11 +150,12 @@ impl UIState {
                 total_bytes_uploaded += connection_info.total_bytes_uploaded;
 
                 let data_for_process = if let Some(process_name) =
-                    UIState::get_proc_name(&connections_to_procs, &connection.local_socket)
+                    UIState::get_proc_name(connections_to_procs, &connection.local_socket)
                 {
                     connection_data.process_name = process_name.clone();
                     processes.entry(process_name.clone()).or_default()
                 } else {
+                    println!("connection_data: {:#?}\nremote address: {:#?}\nconnection: {:#?}\nstate: {:#?}", connection_data, data_for_remote_address, connection, state);
                     connection_data.process_name = String::from("<UNKNOWN>");
                     processes
                         .entry(connection_data.process_name.clone())
